@@ -1,0 +1,166 @@
+%rebase('layout.tpl')
+
+<div class="content-section-a">
+    <div class="container">
+    
+        
+        <form class="form-horizontal" role="form"  enctype="multipart/form-data"  method="post">
+            <legend>
+            To get started, you'll need to upload the following three account history files from <a href="http://cavirtex.com">Virtex</a>
+            </legend>
+            % for name, uploaded in uploadSet.files().items():
+                <div class="form-group {{'has-success' if uploaded else 'has-warning'}} has-feedback">
+                    <label class="col-md-2">
+                        {{name}}
+                    </label>
+                    <div class="col-md-6">
+                        
+                        % if uploaded:
+                            <span class="glyphicon glyphicon-ok form-control-feedback"></span>
+                        % else:
+                        <input type="file" class="form-control" name="{{name}}">
+                        %end
+                    </div>
+                </div>
+            %end
+            % if not all(uploadSet.files().values()):
+            <div class="form-group">
+                <div class="col-md-12">
+                    <button class="btn btn-lg btn-primary btn-block " type="submit" value="upload"><span class="glyphicon glyphicon-upload"></span> Upload Files</button>
+                </div>
+            </div>
+            %end 
+        </form>
+        % if any (uploadSet.files().values()):
+        <form class="form-inline" method="post" action="delete_uploads">
+            <button class="btn btn-lg btn-danger btn-block " type="submit" value="remove"><span class="glyphicon glyphicon-remove"></span> Delete Uploaded Files</button>
+        </form>
+        % end
+        
+        
+        <br>
+            
+        <div class="well">
+            <p class="">Bookmark this link to return to this session:
+                <a href="/upload/{{Helpers.upload_uuid()}}">/upload/{{Helpers.upload_uuid()}}</a>
+            </p> 
+        </div>
+         
+
+        
+    
+    </div>
+</div>
+
+
+% if all(uploadSet.files().values()):
+    
+    <div class="content-section-b">
+        <div class="container">
+            <p class="lead">
+                Now you've uploaded all your files, we can present you with your report.
+            </p>
+            
+            <ul class="nav nav-tabs">
+                <li class="active"><a href="#deposits-CAD"  data-toggle="tab">CAD Deposits</a></li>
+                <li><a href="#withdrawals-CAD" data-toggle="tab">CAD Withdrawals</a></li>
+                <li><a href="#deposits-BTC"  data-toggle="tab">BTC Deposits</a></li>
+                <li><a href="#withdrawals-BTC" data-toggle="tab">BTC Withdrawals</a></li>
+                <li><a href="#fees" data-toggle="tab">Fees</a></li>
+                <li><a href="#chart-BTC" data-toggle="tab">BTC holdings</a></li>
+                <li><a href="#chart-CAD" data-toggle="tab">CAD holdings</a></li>
+                
+                
+                <li><a href="#calculated" data-toggle="tab">Calculated</a></li>
+                
+                
+            </ul>
+            
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div class="tab-pane active" id="deposits-CAD">
+                    {{!uploadSet.depositsCAD().to_html(index=False)}}
+                </div>
+                <div class="tab-pane" id="withdrawals-CAD">
+                    {{!uploadSet.withdrawalsCAD().to_html(index=False)}}
+                </div>
+                <div class="tab-pane" id="deposits-BTC">
+                    {{!uploadSet.depositsBTC().to_html(index=False)}}
+                </div>
+                <div class="tab-pane" id="withdrawals-BTC">
+                    {{!uploadSet.withdrawalsBTC().to_html(index=False)}}
+                </div>
+                <div class="tab-pane" id="fees">
+                    {{!uploadSet.fees().to_html(index=False)}}
+                </div>
+                <div class="tab-pane" id="chart-BTC">
+                    {{!uploadSet.chart('Total(BTC)')}}
+                </div>
+                
+                <div class="tab-pane" id="chart-CAD">
+                    {{!uploadSet.chart('Total(CAD)')}}
+                </div>
+                
+                
+                <div class="tab-pane" id="calculated">
+                
+                    <div class="alert alert-warning">This report will be available shortly</div>
+                </div>
+                
+            </div>
+            
+            
+        </div>
+    </div>
+    
+    <script type="text/javascript">
+      $(function () {
+      
+        $('#myTab a:last').tab('show')
+       
+        //messy but effective.
+        $("table.dataframe")
+            .attr('border',0)
+            .addClass("table table-striped table-bordered");
+       
+        $("table.dataframe td:nth-child(2), td:nth-child(3)").addClass('text-right');
+        $("#fees table.dataframe td:nth-child(4), td:nth-child(5)").addClass('text-right');
+        $("td:contains('NaN')").text("")
+        //add hyperlinks
+        $("#withdrawals-BTC tbody tr td:nth-child(4)").each( function(index, td){
+            var $td=$(td);
+            var text=$td.text().trim();
+            if('' == text) return; 
+            var href="http://blockr.io/address/info/" + text;
+            var $link = $("<a/>").attr('href',href).text(text.slice(0,5) + "...");
+            $td.empty().append($link);
+        });
+            
+    });
+    </script>
+    
+%end
+
+
+<div class="banner">
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-lg-6">
+                <h2>A <a href="http://bitcoins.ca">Bitcoins.ca</a> project</h2>
+            </div>
+            <div class="col-lg-6">
+                <ul class="list-inline banner-social-buttons">
+                    <li><a href="https://twitter.com/trvrm" class="btn btn-default btn-lg"><i class="fa fa-twitter fa-fw"></i> <span class="network-name">Twitter</span></a>
+                    </li>
+                    <li><a href="https://surveymedia.ca" class="btn btn-default btn-lg"><i class="fa fa-globe fa-fw"></i> <span class="network-name">Surveymedia</span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+    <!-- /.container -->
+
+</div>
